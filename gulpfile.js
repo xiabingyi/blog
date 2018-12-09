@@ -1,51 +1,50 @@
-var gulp = require("gulp");
-var htmlmin = require("gulp-htmlmin");
-
-gulp.task('testhtmlmin', function () {
-    var options = {
-        removeComments: true,
-        collapseWhitespace: true,
-        collapseBooleanAttributes: true,
-        removeEmptyAttributes: true,
-        removeScriptTypeAttributes: true,
-        removeStyleLinkTypeAttributes: true,
-        minifyJS: true,
-        minifyCSS: true
-    };
-    gulp.src('src/html/*.html')
-        .pipe(htmlmin(options))
-        .pipe(gulp.dest('dist/html'));
-});
-
-var gulp = require("gulp");
-var imagemin = require("gulp-imagemin");
-    pngquant = require("imagemin-pngquant");
-
-gulp.task('testimagemin',function(){
-    var options = {
-        optimizationLevel: 5,
-            progressive: true,
-            interlaced: true,
-            multipass: true,
-            progressive: true,
-            svgoPlugins: [{removeViewBox: false}],
-            use: [pngquant()]
-    };
-    gulp.src('src/img/*.{png,jpg,gif,ico}')
-        .pipe(imagemin(options))
-        .pipe(gulp.dest('dist/img'));
-});
-
 var gulp = require("gulp"),
-var cssmin = require("gulp-clean-css");
+    htmlmin = require("gulp-htmlmin"),
+    minifycss = require('gulp-minify-css'),
+    uglify = require('gulp-uglify'),
+    imagemin = require('gulp-imagemin'),
+    notify = require('gulp-notify'); 
 
-gulp.task('testcssmin',function(){
-    gulp.src('src/css/*.css')
-        .pipe(cssmin({
-            advanced: false,
-            compatibility: 'ie7',
-            keepBreaks: true,
-            keepSpecialComments: '*'
-        }))
-        .pipe(gulp.dest('dist/css'));
+// Html
+gulp.task('html',function(){
+    return gulp.src('./public/**/*.html')
+      .pipe(htmlmin({
+        removeComments: true,//清除HTML注释
+        collapseWhitespace: true,//压缩HTML
+        collapseBooleanAttributes: true,//省略布尔属性的值 <input checked="true"/> ==> <input />
+        removeEmptyAttributes: true,//删除所有空格作属性值 <input id="" /> ==> <input />
+        removeScriptTypeAttributes: true,//删除<script>的type="text/javascript"
+        removeStyleLinkTypeAttributes: true,//删除<style>和<link>的type="text/css"
+        minifyJS: true,//压缩页面JS
+        minifyCSS: true,//压缩页面CSS
+      }))
+      .pipe(gulp.dest('./public'))
+      .pipe(notify({message:'Html task complete'}));
+});
+htmlmin = require('gulp-htmlmin')
+// Styles
+gulp.task('styles',function(){
+  return gulp.src('./public/**/*.css')
+    .pipe(minifycss())
+    .pipe(gulp.dest('./public'))
+    .pipe(notify({message:'Styles task complete'}));
+});
+// Scripts
+gulp.task('scripts',function(){
+  return gulp.src('./public/**/*js')
+    .pipe(uglify())
+    .pipe(gulp.dest('./public'))
+    .pipe(notify({message:'Scripts task complete'}));
+});
+// Images
+gulp.task('images',function(){
+  return gulp.src('./public/**/*.{png,jpg,gif,svg,JPG}')
+    .pipe(imagemin({
+      optimizationLevel: 3,
+      progressive: true,
+      interlaced: true,
+      multipass: true
+     }))
+    .pipe(gulp.dest('./public'))
+    .pipe(notify({ message: 'Images task complete' }));
 });
